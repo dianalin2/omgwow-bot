@@ -121,7 +121,6 @@ client.on('message', msg => {
                             });
 
                             const table = tablemark(res);
-                            console.log(table);
 
                             msg.channel.send("```" + table + "```");
                         }
