@@ -14,7 +14,7 @@ const add = new Command(['add'], [], {}, async function (args, msg) {
             { guild_id: msg.guild.id },
             { $push: { triggers: { trigger: args[0], response: args[1] } } },
             { upsert: true, useFindAndModify: false }
-        );
+        ).exec();
         return `New response added:\nTrigger: ${args[0]}\nResponse: ${args[1]}`;
     } catch (err) {
         return `ERROR: An error occurred. Try again later.`
@@ -27,17 +27,17 @@ const del = new Command(['del', 'delete'], [], {}, async function (args, msg) {
     }
 
     try {
-        await ServerModel.findOneAndUpdate(
+        const doc = await ServerModel.findOneAndUpdate(
             { guild_id: msg.guild.id },
             { $pull: { triggers: { _id: args[0] } } },
             { upsert: true, useFindAndModify: false, returnOriginal: true },
-        );
+        ).exec();
 
-        const t = doc.triggers.find(x => args[1] === x._id.toString());
+        const t = doc.triggers.find(x => args[0] === x._id.toString());
         if (!t) {
-            res = `Response with ID ${args[0]} not found!`;
-            return;
+            return `Response with ID ${args[0]} not found!`;
         }
+
         return `Response removed:\nTrigger: ${t.trigger}\nResponse: ${t.response}`;
 
     } catch (err) {

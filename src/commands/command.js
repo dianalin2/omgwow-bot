@@ -12,11 +12,12 @@ class Command {
 
             if (!parsed.success && msg.author.id !== client.user.id) {
                 for (const cmd of Command.commands) {
-                    if ('message' in cmd.socketCallbacks)
+                    if ('message' in cmd.socketCallbacks) {
                         cmd.socketCallbacks['message'](msg).then(res => {
                             if (res)
                                 msg.channel.send(res);
                         });
+                    }
                 }
             } else if (msg.author.id !== client.user.id) {
                 Command.executeCommand(parsed.command, parsed.arguments, msg).then(res => {
@@ -27,9 +28,9 @@ class Command {
         });
 
         console.log("Commands initialized!");
-    };
+    }
 
-    constructor(cmdNames, subcommands=[], socketCallbacks={}, execCallback, permsRequired=['SEND_MESSAGES']) {
+    constructor(cmdNames, subcommands=[], socketCallbacks={}, execCallback=null, permsRequired=['SEND_MESSAGES']) {
         this.commandNames = cmdNames;
         this.subcommands = subcommands;
         this.socketCallbacks = socketCallbacks;
@@ -51,12 +52,15 @@ class Command {
             for (const sc of this.subcommands) {
                 if (sc.commandNames.includes(args[0])) {
                     args.shift();
-                    return await sc.exec(args, msg);
+                    return sc.exec(args, msg);
                 }
             }
         }
 
-        return await this.execCallback(args, msg);
+        if (this.execCallback)
+            return this.execCallback(args, msg);
+        else
+            return "";
     }
 
     help() {
@@ -80,7 +84,7 @@ class Command {
 
         for (const c of Command.commands) {
             if (c.commandNames.includes(cmdName)) {
-                return await c.exec(args, msg);
+                return c.exec(args, msg);
             }
         }
 
