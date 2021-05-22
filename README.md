@@ -9,7 +9,7 @@ Prefix: `~`
     * `list` - List all triggers for the server
 
 ## Build and Run with Docker
-1. Configure the environment with 
+1. Configure the environment with `DISCORD_TOKEN`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`
 
 2. Build and run
 ```
