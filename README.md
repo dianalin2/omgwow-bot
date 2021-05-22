@@ -9,6 +9,9 @@ Prefix: `~`
     * `list` - List all triggers for the server
 
 ## Build and Run with Docker
+1. Configure the environment with 
+
+2. Build and run
 ```
 docker build . -t omgwow:latest
 docker run omgwow:latest

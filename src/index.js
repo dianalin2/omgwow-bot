@@ -51,7 +51,7 @@ client.on('message', msg => {
 
     switch (parsed.command) {
         case 'responses':
-            if (!msg.member.hasPermission('MANAGE_CHANNELS')) {
+            if (!msg.member.hasPermission('MANAGE_GUILD')) {
                 msg.reply('bad perms');
                 return;
             }
