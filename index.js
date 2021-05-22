@@ -6,8 +6,40 @@ dotenv.config();
 
 const { parse } = require('discord-command-parser');
 
-// TODO: Implement DB
-const triggers = {}
+const mongoose = require('mongoose');
+
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.tea8a.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, "MongoDB connection error: "));
+db.on('connected', console.log.bind(console, 'DB connection established'));
+
+var Schema = mongoose.Schema;
+
+
+var ServerSchema = new Schema({
+    guild_id: String,
+    triggers: [{
+        trigger: String,
+        response: String
+    }]
+});
+
+var ServerModel = mongoose.model('servers', ServerSchema);
+
+client.on("guildCreate", guild => {
+    console.log(`Added to new server :) ${guild.name}`);
+    ServerModel.create({
+        guild_id: guild.id,
+        triggers: []
+    });
+});
+
+client.on('guildDelete', guild => {
+    console.log(`Removed from server :( ${guild.name}`);
+    ServerModel.remove({ guild_id: guild.id });
+})
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
@@ -17,25 +49,31 @@ client.on('message', msg => {
 
     const parsed = parse(msg, "~", { allowSpaceBeforeCommand: true });
 
-    if (!triggers[msg.guild.id])
-        triggers[msg.guild.id] = {};
-
     if (!parsed.success && msg.author.id !== client.user.id) {
-        for (const s of Object.keys(triggers[msg.guild.id])) {
-            if (msg.content.includes(s)) {
-                msg.reply(triggers[msg.guild.id][s]);
+        ServerModel.find({ guild_id: msg.guild.id }, function (err, docs) {
+            for (const d of docs) {
+                d.triggers.forEach(trigger => {
+                    if (!trigger.response)
+                        return;
+                    console.log(trigger)
+                    if (msg.content.includes(trigger.trigger)) {
+                        msg.reply(trigger.response);
+                    }                    
+                });
             }
-        }
+        });
 
         return;
     }
 
     const args = parsed.arguments;
 
-    console.log(parsed.command);
-    console.log(args);
     switch (parsed.command) {
         case 'responses':
+            if (!msg.member.hasPermission('MANAGE_CHANNELS')) {
+                msg.reply('bad perms');
+                return;
+            }
 
             if (args.length < 2) {
                 msg.reply('Usage: ~responses add|del ...');
@@ -48,30 +86,45 @@ client.on('message', msg => {
                     return;
                 }
 
-                triggers[msg.guild.id][args[1]] = args[2];
-                msg.reply(`New response added:\nTrigger: ${args[1]}\nResponse: ${args[2]}`);
+                ServerModel.findOneAndUpdate(
+                    { guild_id: msg.guild.id },
+                    { $push: { triggers: { trigger: args[1], response: args[2] } } },
+                    { upsert: true, useFindAndModify: false },
+                    () => {
+                        console.log("yay");
+                        msg.reply(`New response added:\nTrigger: ${args[1]}\nResponse: ${args[2]}`);
+                    }
+                );
+
             } else if (args[0] === 'del') {
-                if (args.length !== 3) {
-                    msg.reply('Usage: ~responses del <trigger>');
+                if (args.length !== 2) {
+                    msg.reply('Usage: ~responses del <trigger ID>');
                     return;
                 }
 
-                if (!triggers[msg.guild.id])
-                    triggers[msg.guild.id] = {};
+                ServerModel.findOneAndUpdate(
+                    { guild_id: msg.guild.id },
+                    { $pull: { triggers: { _id: args[1] } } },
+                    { upsert: true, useFindAndModify: false, returnOriginal: true },
+                    (err, doc) => {
+                        if (err) {
+                            msg.reply(`Response with ID ${args[1]} not found!`);
+                        } else {
+                            const t = doc.triggers.find(x => args[1] === x._id.toString());
+                            if (!t) {
+                                msg.reply(`Response with ID ${args[1]} not found!`);
+                                return;
+                            }
+                            msg.reply(`Response removed:\nTrigger: ${t.trigger}\nResponse: ${t.response}`);
+                        }
+                    }
+                );
 
-                if (!triggers[msg.guild.id[args[1]]]) {
-                    msg.reply(`Response doesn't exist!`);
-                }
-
-                const res = triggers[msg.guild.id][args[1]];
-                delete triggers[msg.guild.id][args[1]];
-                msg.reply(`Response removed:\nTrigger: ${args[1]}\nResponse: ${res}`);
             }
             break;
         default:
             break;
     }
-
 });
 
 client.login(process.env.DISCORD_TOKEN);
