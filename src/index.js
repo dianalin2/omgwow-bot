@@ -8,6 +8,8 @@ const { parse } = require('discord-command-parser');
 
 const { ServerModel } = require('./db');
 
+const tablemark = require('tablemark');
+
 client.on("guildCreate", guild => {
     console.log(`Added to new server :) ${guild.name}`);
     ServerModel.create({
@@ -37,7 +39,7 @@ client.on('message', msg => {
                         return;
                     if (msg.content.includes(trigger.trigger)) {
                         msg.reply(trigger.response);
-                    }                    
+                    }
                 });
             }
         });
@@ -54,8 +56,8 @@ client.on('message', msg => {
                 return;
             }
 
-            if (args.length < 2) {
-                msg.reply('Usage: ~responses add|del ...');
+            if (args.length < 1) {
+                msg.reply('Usage: ~responses add|del|list ...');
                 return;
             }
 
@@ -98,6 +100,33 @@ client.on('message', msg => {
                     }
                 );
 
+            } else if (args[0] === 'list') {
+                if (args.length !== 1) {
+                    msg.reply('Usage: ~responses list');
+                    return;
+                }
+
+                ServerModel.findOne(
+                    { guild_id: msg.guild.id }, null, { upsert: true },
+                    (err, doc) => {
+                        if (err) {
+                            msg.reply(`ERROR: An error occurred. Try again later.`)
+                        } else {
+                            let res = [];
+                            doc.triggers.forEach(trigger => {
+                                if (!trigger.response)
+                                    return;
+
+                                res.push({'ID': trigger._id, 'Trigger': trigger.trigger, 'Response': trigger.response});
+                            });
+
+                            const table = tablemark(res);
+                            console.log(table);
+
+                            msg.channel.send("```" + table + "```");
+                        }
+                    }
+                )
             }
             break;
         default:

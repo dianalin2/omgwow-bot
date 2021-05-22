@@ -13,6 +13,7 @@
     "discord.js": "^12.5.3",
     "dotenv": "^9.0.2",
     "mee6-levels-api": "^1.3.0",
-    "mongoose": "^5.12.10"
+    "mongoose": "^5.12.10",
+    "tablemark": "^2.0.0"
   }
 }
