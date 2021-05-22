@@ -19,7 +19,7 @@ const add = new Command(['add'], [], {}, async function (args, msg) {
     } catch (err) {
         return `ERROR: An error occurred. Try again later.`
     }
-});
+}, ['MANAGE_GUILD']);
 
 const del = new Command(['del', 'delete'], [], {}, async function (args, msg) {
     if (args.length !== 1) {
@@ -43,7 +43,7 @@ const del = new Command(['del', 'delete'], [], {}, async function (args, msg) {
     } catch (err) {
         return `Response with ID ${args[0]} not found!`;
     }
-});
+}, ['MANAGE_GUILD']);
 
 const list = new Command(['ls', 'list'], [], {}, async function (args, msg) {
     if (args.length !== 0) {

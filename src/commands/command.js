@@ -29,16 +29,22 @@ class Command {
         console.log("Commands initialized!");
     };
 
-    constructor(cmdNames, subcommands, socketCallbacks, execCallback) {
+    constructor(cmdNames, subcommands=[], socketCallbacks={}, execCallback, permsRequired=['SEND_MESSAGES']) {
         this.commandNames = cmdNames;
         this.subcommands = subcommands;
         this.socketCallbacks = socketCallbacks;
         this.execCallback = execCallback;
+        this.permsRequired = permsRequired;
     }
 
     async exec(args, msg) {
         if (args[0] === '--help') {
             return this.help();
+        }
+
+        if (!msg.member.hasPermission(this.permsRequired)) {
+            msg.reply('bad perms');
+            return;
         }
 
         if (args.length > 0) {
