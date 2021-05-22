@@ -6,27 +6,7 @@ dotenv.config();
 
 const { parse } = require('discord-command-parser');
 
-const mongoose = require('mongoose');
-
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.tea8a.mongodb.net/${process.env.DB_NAME}?retryWrites=true&w=majority`;
-mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true });
-
-const db = mongoose.connection;
-db.on('error', console.error.bind(console, "MongoDB connection error: "));
-db.on('connected', console.log.bind(console, 'DB connection established'));
-
-var Schema = mongoose.Schema;
-
-
-var ServerSchema = new Schema({
-    guild_id: String,
-    triggers: [{
-        trigger: String,
-        response: String
-    }]
-});
-
-var ServerModel = mongoose.model('servers', ServerSchema);
+const { ServerModel } = require('./db');
 
 client.on("guildCreate", guild => {
     console.log(`Added to new server :) ${guild.name}`);
@@ -55,7 +35,6 @@ client.on('message', msg => {
                 d.triggers.forEach(trigger => {
                     if (!trigger.response)
                         return;
-                    console.log(trigger)
                     if (msg.content.includes(trigger.trigger)) {
                         msg.reply(trigger.response);
                     }                    
@@ -91,7 +70,6 @@ client.on('message', msg => {
                     { $push: { triggers: { trigger: args[1], response: args[2] } } },
                     { upsert: true, useFindAndModify: false },
                     () => {
-                        console.log("yay");
                         msg.reply(`New response added:\nTrigger: ${args[1]}\nResponse: ${args[2]}`);
                     }
                 );
