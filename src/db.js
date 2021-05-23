@@ -15,7 +15,14 @@ const ServerSchema = new Schema({
     triggers: [{
         trigger: String,
         response: String
-    }]
+    }],
+    mee6_rank: {
+        toggle: { type: Boolean, default: false },
+        announce_ch_id: String,
+        announce_message: String,
+        role_id: String,
+        top_user_id: String
+    }
 });
 
 const ServerModel = mongoose.model('servers', ServerSchema);

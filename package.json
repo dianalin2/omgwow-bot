@@ -3,11 +3,15 @@
   "version": "1.0.0",
   "description": "discord bot",
   "main": "src/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dianalin2/omgwow-bot.git"
+  },
   "scripts": {
     "start": "node src/index.js"
   },
   "author": "Diana Lin",
-  "license": "MIT",
+  "license": "GPL-3.0-only",
   "dependencies": {
     "discord-command-parser": "^1.5.3",
     "discord.js": "^12.5.3",

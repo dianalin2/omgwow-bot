@@ -2,19 +2,24 @@ const { parse } = require('discord-command-parser');
 
 class Command {
     static commands = [];
+    static client;
 
     static init(client) {
         if (client == null)
             throw new Error('No client was specified!');
+
+        Command.client = client;
 
         client.on('message', msg => {
             const parsed = parse(msg, "~", { allowSpaceBeforeCommand: true });
 
             if (!parsed.success && msg.author.id !== client.user.id) {
                 for (const cmd of Command.commands) {
-                    if ('message' in cmd.socketCallbacks) {
-                        cmd.socketCallbacks['message'](msg).then(res => {
-                            if (res)
+                    if (cmd.msgCallback) {
+                        cmd.msgCallback(msg).then(res => {
+                            if (res && res.channel !== undefined)
+                                res.channel.send(res.body);
+                            else if (res)
                                 msg.channel.send(res);
                         });
                     }
@@ -34,6 +39,14 @@ class Command {
         this.commandNames = cmdNames;
         this.subcommands = subcommands;
         this.socketCallbacks = socketCallbacks;
+
+        for (const e of Object.keys(socketCallbacks)) {
+            if (e === 'message') {
+                this.msgCallback = socketCallbacks[e];
+            } else {
+                Command.client.on(e, socketCallbacks[e]);
+            }
+        }
         this.execCallback = execCallback;
         this.permsRequired = permsRequired;
     }
@@ -92,7 +105,16 @@ class Command {
     }
 
     static help() {
-        return 'Usage: ~responses'
+        let res = '';
+
+        for (let i = 0; i < Command.commands.length - 1; i++) {
+            res += Command.commands[i].commandNames[0] + '|';
+        }
+
+        if (Command.commands.length > 0)
+            res += Command.commands[Command.commands.length - 1].commandNames[0];
+
+        return 'Usage: ~' + res;
     }
 }
 
