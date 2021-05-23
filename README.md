@@ -19,7 +19,7 @@ Prefix: `~`
 ## Build and Run with Docker
 
 1. Configure the environment with `DISCORD_TOKEN`, `DB_NAME`, `DB_USER`, and `DB_PASSWORD`.
-    * This project uses a MongoDB database hosted on MongoDB Atlas. You may need to change the URI in [index.js](./src/index.js) too.
+    * This project uses a MongoDB database hosted on MongoDB Atlas. You may need to change the URI in [db.js](./src/db.js) too.
     * Go through Discord bot setup [here](https://discord.com/developers/applications).
 
 
