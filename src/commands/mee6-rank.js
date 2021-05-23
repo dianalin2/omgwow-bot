@@ -85,7 +85,7 @@ const setAnnouncementChannel = new Command(['set-announce-channel'], [], {
     }
 }, async function (args, msg) {
     if (args.length !== 1) {
-        return '~mee6-rank config set-announce-msg <channel-id>';
+        return '~mee6-rank config set-announce-msg <channel ID>';
     }
 
     try {

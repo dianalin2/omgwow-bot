@@ -26,6 +26,8 @@ client.on('ready', () => {
 const { Command } = require('./commands/command');
 Command.init(client);
 
+require('./commands/help');
+
 require('./commands/responses');
 require('./commands/mee6-rank');
 

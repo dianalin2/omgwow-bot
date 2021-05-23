@@ -101,7 +101,7 @@ class Command {
             }
         }
 
-        return Command.help();
+        return '';
     }
 
     static help() {
