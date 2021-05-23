@@ -5,14 +5,23 @@ const tablemark = require('tablemark');
 const { ServerModel } = require('../db');
 
 const add = new Command(['add'], [], {}, async function (args, msg) {
-    if (args.length !== 2) {
-        return 'Usage: ~responses add <trigger> <response>';
+    if (args.length !== 2 && args.length !== 3) {
+        return 'Usage: ~responses add <trigger> <response> <optional: whole word match? (y/n) (default: y)>';
     }
+
+    if (args[0] === '' || args[1] === '' || args[1].length >= 4000)
+        return 'ERROR: daniel moment';
+
+    let wholeWordMatch;
+    if (args[2])
+        wholeWordMatch = args[2] === 'y';
+    else
+        wholeWordMatch = true;
 
     try {
         await ServerModel.findOneAndUpdate(
             { guild_id: msg.guild.id },
-            { $push: { triggers: { trigger: args[0], response: args[1] } } },
+            { $push: { triggers: { trigger: args[0], response: args[1], whole_word_match: wholeWordMatch } } },
             { upsert: true, useFindAndModify: false }
         ).exec();
         return `New response added:\nTrigger: ${args[0]}\nResponse: ${args[1]}`;
@@ -60,7 +69,7 @@ const list = new Command(['ls', 'list'], [], {}, async function (args, msg) {
             if (!trigger.response)
                 return;
 
-            data.push({ 'ID': trigger._id, 'Trigger': trigger.trigger, 'Response': trigger.response });
+            data.push({ 'ID': trigger._id, 'Trigger': trigger.trigger, 'Response': trigger.response, 'Whole Word Match': trigger.whole_word_match });
         });
 
         const table = tablemark(data);
@@ -79,7 +88,8 @@ Command.addCommand(new Command(['responses'], [add, del, list], {
             doc.triggers.forEach(trigger => {
                 if (!trigger.response)
                     return;
-                if (msg.content.includes(trigger.trigger)) {
+                if ((msg.content.includes(trigger.trigger) && !trigger.whole_word_match) ||
+                    (trigger.whole_word_match && containsSequence(msg.content.split(' '), trigger.trigger.split(' ')))) {
                     res += trigger.response + '\n';
                 }
             });
@@ -92,3 +102,23 @@ Command.addCommand(new Command(['responses'], [add, del, list], {
 }, function () {
     return this.help();
 }));
+
+function containsSequence(arr, seqArr) {
+    if (arr.length < seqArr.length)
+        return false;
+
+    for (let i = 0; i < arr.length; i++) {
+        let found = true;
+        for (let j = 0; j < seqArr.length; j++) {
+            if (arr[i + j] !== seqArr[j]) {
+                found = false;
+                break;
+            }
+        }
+
+        if (found)
+            return true;
+    }
+
+    return false;
+}

@@ -14,7 +14,8 @@ const ServerSchema = new Schema({
     guild_id: String,
     triggers: [{
         trigger: String,
-        response: String
+        response: String,
+        whole_word_match: { type: Boolean, default: true }
     }],
     mee6_rank: {
         toggle: { type: Boolean, default: false },

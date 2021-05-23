@@ -11,7 +11,7 @@ class Command {
         Command.client = client;
 
         client.on('message', msg => {
-            const parsed = parse(msg, "~", { allowSpaceBeforeCommand: true });
+            const parsed = parse(msg, "~", { allowSpaceBeforeCommand: true, allowBots: false });
 
             if (!parsed.success && msg.author.id !== client.user.id) {
                 for (const cmd of Command.commands) {
