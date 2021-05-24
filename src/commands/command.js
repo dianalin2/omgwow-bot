@@ -19,17 +19,28 @@ class Command {
                     for (const cmd of Command.commands) {
                         if (cmd.msgCallback) {
                             cmd.msgCallback(msg, server).then(res => {
-                                if (res && res.channel !== undefined)
-                                    res.channel.send(res.body);
-                                else if (res)
-                                    msg.channel.send(res);
+                                if (res && res.channel !== undefined) {
+                                    if (res.body.length <= 2000)
+                                        res.channel.send(res.body);
+                                    else
+                                        res.channel.send(res.body.substring(0, 998) + "\n...\n" + res.body.substring(res.length - 997));
+                                } else if (res) {
+                                    if (res.length <= 2000)
+                                        msg.channel.send(res);
+                                    else
+                                        msg.channel.send(res.substring(0, 998) + "\n...\n" + res.substring(res.length - 997));
+                                }
                             });
                         }
                     }
                 } else if (msg.author.id !== client.user.id) {
                     Command.executeCommand(parsed.command, parsed.arguments, msg).then(res => {
-                        if (res)
-                            msg.channel.send(res);
+                        if (res) {
+                            if (res.length <= 2000)
+                                msg.channel.send(res);
+                            else
+                                msg.channel.send(res.substring(0, 998) + "\n...\n" + res.substring(res.length - 997));
+                        }
                     });
                 }
             }).catch(_ => {
