@@ -12,6 +12,7 @@ const Schema = mongoose.Schema;
 
 const ServerSchema = new Schema({
     guild_id: String,
+    prefix: { type: String, default: '~' },
     triggers: [{
         trigger: String,
         response: String,

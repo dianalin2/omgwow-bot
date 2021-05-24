@@ -46,7 +46,7 @@ const toggle = new Command(['toggle'], [toggleOn, toggleOff], {}, function () {
 
 const setAnnouncementMessage = new Command(['set-announce-msg'], [], {}, async function (args, msg) {
     if (args.length !== 1) {
-        return '~mee6-rank config set-announce-msg <msg>';
+        return 'Usage: mee6-rank config set-announce-msg <msg>';
     }
 
     try {
@@ -85,7 +85,7 @@ const setAnnouncementChannel = new Command(['set-announce-channel'], [], {
     }
 }, async function (args, msg) {
     if (args.length !== 1) {
-        return '~mee6-rank config set-announce-msg <channel ID>';
+        return 'Usage: mee6-rank config set-announce-msg <channel ID>';
     }
 
     try {
@@ -114,30 +114,24 @@ const config = new Command(['config'], [setAnnouncementMessage, setAnnouncementC
 })
 
 Command.addCommand(new Command(['mee6-rank'], [toggle, config], {
-    'message': async function (msg) {
-        try {
-            const serverData = await ServerModel.findOne({ guild_id: msg.guild.id });
-            if (!serverData.mee6_rank || !serverData.mee6_rank.toggle)
-                return '';
-
-            const userData = await Mee6LevelsApi.getUserXp(msg.guild.id, msg.author.id);
-
-            if (userData.rank === 1 && userData.id !== serverData.mee6_rank.top_user_id) {
-                await ServerModel.findOneAndUpdate(
-                    { guild_id: msg.guild.id },
-                    { 'mee6_rank.top_user_id': userData.id },
-                    { upsert: true, useFindAndModify: false }
-                );
-
-                const announcement = serverData.mee6_rank.announce_message || '{user} is now rank #1!';
-
-                const channelId = serverData.mee6_rank.announce_ch_id;
-                if (channelId && msg.guild.channels.cache.get(channelId))
-                    return { body: announcement.replace('{user}', userData.tag), channel: msg.guild.channels.cache.get(channelId) };
-            }
-
-        } catch (err) {
+    'message': async function (msg, serverData) {
+        if (!serverData.mee6_rank || !serverData.mee6_rank.toggle)
             return '';
+
+        const userData = await Mee6LevelsApi.getUserXp(msg.guild.id, msg.author.id);
+
+        if (userData.rank === 1 && userData.id !== serverData.mee6_rank.top_user_id) {
+            await ServerModel.findOneAndUpdate(
+                { guild_id: msg.guild.id },
+                { 'mee6_rank.top_user_id': userData.id },
+                { upsert: true, useFindAndModify: false }
+            );
+
+            const announcement = serverData.mee6_rank.announce_message || '{user} is now rank #1!';
+
+            const channelId = serverData.mee6_rank.announce_ch_id;
+            if (channelId && msg.guild.channels.cache.get(channelId))
+                return { body: announcement.replace('{user}', userData.tag), channel: msg.guild.channels.cache.get(channelId) };
         }
     },
     'guildMemberRemove': async function (mem) {

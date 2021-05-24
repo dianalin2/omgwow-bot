@@ -1,4 +1,5 @@
 const { parse } = require('discord-command-parser');
+const { ServerModel } = require('../db');
 
 class Command {
     static commands = [];
@@ -11,31 +12,36 @@ class Command {
         Command.client = client;
 
         client.on('message', msg => {
-            const parsed = parse(msg, "~", { allowSpaceBeforeCommand: true, allowBots: false });
+            ServerModel.findOne({ guild_id: msg.guild.id }, null, { upsert: true }).then(server => {
+                const parsed = parse(msg, server.prefix || '~', { allowSpaceBeforeCommand: true, allowBots: false });
 
-            if (!parsed.success && msg.author.id !== client.user.id) {
-                for (const cmd of Command.commands) {
-                    if (cmd.msgCallback) {
-                        cmd.msgCallback(msg).then(res => {
-                            if (res && res.channel !== undefined)
-                                res.channel.send(res.body);
-                            else if (res)
-                                msg.channel.send(res);
-                        });
+                if (!parsed.success && msg.author.id !== client.user.id) {
+                    for (const cmd of Command.commands) {
+                        if (cmd.msgCallback) {
+                            cmd.msgCallback(msg, server).then(res => {
+                                if (res && res.channel !== undefined)
+                                    res.channel.send(res.body);
+                                else if (res)
+                                    msg.channel.send(res);
+                            });
+                        }
                     }
+                } else if (msg.author.id !== client.user.id) {
+                    Command.executeCommand(parsed.command, parsed.arguments, msg).then(res => {
+                        if (res)
+                            msg.channel.send(res);
+                    });
                 }
-            } else if (msg.author.id !== client.user.id) {
-                Command.executeCommand(parsed.command, parsed.arguments, msg).then(res => {
-                    if (res)
-                        msg.channel.send(res);
-                });
-            }
+            }).catch(_ => {
+                msg.channel.send('ERROR: An error occurred. Try again later.');
+            });
         });
+
 
         console.log("Commands initialized!");
     }
 
-    constructor(cmdNames, subcommands=[], socketCallbacks={}, execCallback=null, permsRequired=['SEND_MESSAGES']) {
+    constructor(cmdNames, subcommands = [], socketCallbacks = {}, execCallback = null, permsRequired = ['SEND_MESSAGES']) {
         this.commandNames = cmdNames;
         this.subcommands = subcommands;
         this.socketCallbacks = socketCallbacks;
@@ -114,7 +120,7 @@ class Command {
         if (Command.commands.length > 0)
             res += Command.commands[Command.commands.length - 1].commandNames[0];
 
-        return 'Usage: ~' + res;
+        return 'Usage: ' + res;
     }
 }
 

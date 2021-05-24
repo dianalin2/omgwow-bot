@@ -6,7 +6,7 @@ const { ServerModel } = require('../db');
 
 const add = new Command(['add'], [], {}, async function (args, msg) {
     if (args.length !== 2 && args.length !== 3) {
-        return 'Usage: ~responses add <trigger> <response> <optional: whole word match? (y/n) (default: y)>';
+        return 'Usage: responses add <trigger> <response> <optional: whole word match? (y/n) (default: y)>';
     }
 
     if (args[0] === '' || args[1] === '' || args[1].length >= 4000)
@@ -32,7 +32,7 @@ const add = new Command(['add'], [], {}, async function (args, msg) {
 
 const del = new Command(['del', 'delete'], [], {}, async function (args, msg) {
     if (args.length !== 1) {
-        return 'Usage: ~responses del <trigger ID>';
+        return 'Usage: responses del <trigger ID>';
     }
 
     try {
@@ -56,7 +56,7 @@ const del = new Command(['del', 'delete'], [], {}, async function (args, msg) {
 
 const list = new Command(['ls', 'list'], [], {}, async function (args, msg) {
     if (args.length !== 0) {
-        return 'Usage: ~responses list';
+        return 'Usage: responses list';
     }
 
     try {
@@ -81,22 +81,16 @@ const list = new Command(['ls', 'list'], [], {}, async function (args, msg) {
 });
 
 Command.addCommand(new Command(['responses'], [add, del, list], {
-    'message': async function (msg) {
+    'message': async function (msg, server) {
         var res = '';
-        try {
-            const doc = await ServerModel.findOne({ guild_id: msg.guild.id });
-            doc.triggers.forEach(trigger => {
-                if (!trigger.response)
-                    return;
-                if ((msg.content.includes(trigger.trigger) && !trigger.whole_word_match) ||
-                    (trigger.whole_word_match && containsSequence(msg.content.split(' '), trigger.trigger.split(' ')))) {
-                    res += trigger.response + '\n';
-                }
-            });
-        } catch (err) {
-            return 'ERROR: An error occurred. Try again later.';
-        }
-
+        server.triggers.forEach(trigger => {
+            if (!trigger.response)
+                return;
+            if ((msg.content.includes(trigger.trigger) && !trigger.whole_word_match) ||
+                (trigger.whole_word_match && containsSequence(msg.content.split(' '), trigger.trigger.split(' ')))) {
+                res += trigger.response + '\n';
+            }
+        });
         return res;
     }
 }, function () {
