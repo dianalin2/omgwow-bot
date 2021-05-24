@@ -21,12 +21,11 @@ client.on('guildDelete', guild => {
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}`);
+    client.user.setPresence({ activity: { name: '~help' }, status: 'online' });
 });
 
 const { Command } = require('./commands/command');
 Command.init(client);
-
-require('./commands/help');
 
 require('./commands/responses');
 require('./commands/mee6-rank');
