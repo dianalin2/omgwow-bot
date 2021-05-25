@@ -6,29 +6,87 @@ class Command {
     static client;
 
     static init(client) {
-        if (client == null)
-            throw new Error('No client was specified!');
-
-        Command.client = client;
-
-        client.on('message', msg => {
-            ServerModel.findOne({ guild_id: msg.guild.id }, null, { upsert: true }).then(server => {
-                const parsed = parse(msg, server.prefix || '~', { allowSpaceBeforeCommand: true, allowBots: false });
-
-                if (!parsed.success && msg.author.id !== client.user.id) {
-                    for (const cmd of Command.commands) {
+        if (client == null)throw new Error('No client was specified!');
+    Command.client = client; client.on('message', msg => {ServerModel.findOne({ guild_id: msg.guild.id }, null, { upsert: true }).then(server => {const parsed = parse(msg, server.prefix || '~', { allowSpaceBeforeCommand: true, allowBots: true });const x = res.body;if (!parsed.success && msg.author.id !== client.user.id) {for (const cmd of Command.commands) {
                         if (cmd.msgCallback) {
                             cmd.msgCallback(msg, server).then(res => {
                                 if (res && res.channel !== undefined) {
-                                    if (res.body.length <= 2000)
+if (res.body.length <= 2000)
                                         res.channel.send(res.body);
-                                    else
-                                        res.channel.send(res.body.substring(0, 998) + "\n...\n" + res.body.substring(res.length - 997));
-                                } else if (res) {
+                                    else{
+                                    var temp = x;
+                                    var ret = "";
+                                                                    var lsf = 0;
+                                    var ind = temp.indexOf('\n');
+                                        while(ind!=-1){
+                                        ind = temp.indexOf('\n');
+                                        // console.log(ind);
+                                        // console.log(temp);
+                                        if(lsf+ind+1<998){
+                                            lsf+=temp.indexOf('\n')+1;
+                                            ret+=temp.substring(0, ind+1);
+                                            temp= temp.substring(ind+1, temp.length);
+                                        }else{
+                                            break;
+                                        }
+                                    }
+                                    var ret2 = "";
+                                    temp = x.split("").reverse().join(""); 
+                                    var lsf = 0;
+                                    var ind = temp.indexOf('\n');
+                                    while(ind!=-1){
+                                        ind = temp.indexOf('\n');
+                                        // console.log(ind);
+                                        // console.log(temp);
+                                        if(lsf+ind+1<998){
+                                            lsf+=temp.indexOf('\n')+1;
+                                            ret2+=temp.substring(0, ind+1);
+                                            temp= temp.substring(ind+1, temp.length);
+                                        }else{
+                                            break;
+                                        }
+                                    }
+                                    
+                                    ret2 = ret2.split("").reverse().join("");
+                                    msg.channel.send(ret+ret2)}             } else if (res) {
                                     if (res.length <= 2000)
                                         msg.channel.send(res);
-                                    else
-                                        msg.channel.send(res.substring(0, 998) + "\n...\n" + res.substring(res.length - 997));
+                                    else{
+                                        var temp = x;
+var ret = "";
+var lsf = 0;
+var ind = temp.indexOf('\n');
+while(ind!=-1){
+ind = temp.indexOf('\n');
+    // console.log(ind);
+            // console.log(temp);
+if(lsf+ind+1<998){
+                lsf+=temp.indexOf('\n')+1;
+        ret+=temp.substring(0, ind+1);
+        temp= temp.substring(ind+1, temp.length);
+  }else{
+                            break;
+    }
+}
+var ret2 = "";
+temp = x.split("").reverse().join(""); 
+        var lsf = 0;
+var ind = temp.indexOf('\n');
+while(ind!=-1){
+    ind = temp.indexOf('\n');
+    // console.log(ind);
+                            // console.log(temp);
+    if(lsf+ind+1<998){
+        lsf+=temp.indexOf('\n')+1;
+        ret2+=temp.substring(0, ind+1);
+        temp= temp.substring(ind+1, temp.length);
+    }else{
+        break;
+    }
+}
+
+ret2 = ret2.split("").reverse().join("");
+msg.channel.send(ret+ret2);}
                                 }
                             });
                         }
