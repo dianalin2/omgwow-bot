@@ -20,4 +20,4 @@ Command.addCommand(new Command(['prefix'], [], {}, async function (args, msg) {
     } catch (err) {
         return `ERROR: An error occurred. Try again later.`;
     }
-}));
+}, ['MANAGE_GUILD']));
