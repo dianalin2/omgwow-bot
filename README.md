@@ -15,6 +15,8 @@ Prefix: `~`
         Aliases: `num`
     * `choices <args...>` - Responds with a randomly-chosen argument
         Aliases: `ch`, `choice`
+    * `coinflip <arg>` - Responses with agreement or dissent from an action
+        Aliases: `cf`, `yn`
 * `responses` - Auto-responds to a message whenever a "trigger" is detected 
     * `add <trigger> <response>` - Add a trigger and response
     * `delete <trigger ID>` - Delete a trigger (based on trigger ID)
