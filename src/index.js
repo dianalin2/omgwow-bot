@@ -30,6 +30,7 @@ Command.init(client);
 require('./commands/util');
 require('./commands/responses');
 require('./commands/mee6-rank');
+require('./commands/random');
 
 if (!process.env.DEBUG)
     client.login(process.env.DISCORD_TOKEN);

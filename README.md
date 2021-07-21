@@ -15,6 +15,10 @@ Prefix: `~`
         Aliases: `del`
     * `list` - List all triggers for the server
         Aliases: `ls`
+* `random` - Random commands
+    Aliases: `rand`
+    * `number <a> <b>` - Responds with a random number between a and b, inclusive
+        Aliases: `num`
 
 ## Build and Run with Docker
 
