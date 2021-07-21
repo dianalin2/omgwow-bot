@@ -9,16 +9,18 @@ Prefix: `~`
         * `set-announce-channel <channel ID>` - Set #1 rank change announcement channel to a given channel
         * `set-announce-msg` - Set #1 rank change announcement format
             `{user}` can specify the tag of the new #1 ranked member
+* `random` - Random commands
+    Aliases: `rand`
+    * `number <a> <b>` - Responds with a random number between a and b, inclusive
+        Aliases: `num`
+    * `choices <args...>` - Responds with a randomly-chosen argument
+        Aliases: `ch`, `choice`
 * `responses` - Auto-responds to a message whenever a "trigger" is detected 
     * `add <trigger> <response>` - Add a trigger and response
     * `delete <trigger ID>` - Delete a trigger (based on trigger ID)
         Aliases: `del`
     * `list` - List all triggers for the server
         Aliases: `ls`
-* `random` - Random commands
-    Aliases: `rand`
-    * `number <a> <b>` - Responds with a random number between a and b, inclusive
-        Aliases: `num`
 
 ## Build and Run with Docker
 

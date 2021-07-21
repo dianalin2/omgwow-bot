@@ -1,6 +1,6 @@
 const { Command } = require("./command")
 
-const number = new Command(["number", "num"], [], {}, function(args, _) {
+const number = new Command(["number", "num"], [], {}, function(args) {
     if (args.length != 0 && args.length != 2) {
         return 'Usage: random number <a> <b>';
     }
@@ -25,6 +25,25 @@ const choices = new Command(["choices", "choice", "ch"], [], {}, function(args) 
     return args[Math.floor(Math.random() * args.length)];
 });
 
-Command.addCommand(new Command(["random", "rand"], [number, choices], {}, function(_, _) {
+const yn = new Command(["yn", "coinflip", "cf"], [], {}, function(args) {
+    if (args.length != 1 && args.length != 0)
+        return 'Usage: random coinflip <arg>';
+
+    const arg = args[0] || "";
+
+    if (Math.random() > 0.5) {
+        if (arg !== "")
+            return `It would be very wise to ${arg}.`;
+        else
+            return `Logic says yes.`;
+    } else {
+        if (arg !== "")
+            return `To ${arg} would be a bad idea.`;
+        else
+            return `Logic says no.`;
+    }
+})
+
+Command.addCommand(new Command(["random", "rand"], [number, choices, yn], {}, function(_, _) {
 
 }));
