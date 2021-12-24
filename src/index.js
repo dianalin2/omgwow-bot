@@ -31,6 +31,7 @@ require('./commands/util');
 require('./commands/responses');
 require('./commands/mee6-rank');
 require('./commands/random');
+require('./commands/repeat');
 
 if (!process.env.DEBUG)
     client.login(process.env.DISCORD_TOKEN);

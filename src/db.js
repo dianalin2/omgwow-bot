@@ -24,7 +24,14 @@ const ServerSchema = new Schema({
         announce_message: String,
         role_id: String,
         top_user_id: String
-    }
+    },
+    repeats: [{
+        ch_id: String,
+        secs: Number,
+        it_cnt: Number,
+        creation_time: Date,
+        text: String
+    }]
 });
 
 const ServerModel = mongoose.model('servers', ServerSchema);
