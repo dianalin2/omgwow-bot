@@ -46,7 +46,7 @@ Command.addCommand(new Command(['repeat', 'spam'], [], {}, async function (args,
 
     let totalTimeout = getSeconds(args[1]);
 
-    if (totalTimeout > 216000 || totalTimeout < 1)
+    if (totalTimeout > 60 * 60 * 24 || totalTimeout < 1)
         return 'Invalid timeout (24h >= time >= 1s)';
 
     const now = new Date();
