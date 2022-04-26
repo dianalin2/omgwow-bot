@@ -31,6 +31,12 @@ const yn = new Command(["yn", "coinflip", "cf"], [], {}, function(args) {
 
     const arg = args[0] || "";
 
+    if (arg.includes("genshin"))
+        if (((arg.match(/\b(not?)\b/gi).length || []) % 2 == 0))
+            return 'no, dear god, no';
+        else
+            return 'yes, I agree';
+
     if (Math.random() > 0.5) {
         if (arg !== "")
             return `It would be very wise to ${arg}.`;
